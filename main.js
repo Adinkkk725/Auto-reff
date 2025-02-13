@@ -1,95 +1,116 @@
-const axios = require('axios');
-const fs = require('fs');
-const readline = require('readline');
+const axios = require("axios");
+const fs = require("fs");
+const readline = require("readline");
 
-// Fungsi untuk input user
 const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
+  input: process.stdin,
+  output: process.stdout,
 });
 
-// Fungsi untuk meminta input jumlah akun dan referral
-function tanyaPertanyaan(pertanyaan) {
-    return new Promise(resolve => {
-        rl.question(pertanyaan, (jawaban) => {
-            resolve(jawaban);
-        });
-    });
+// Fungsi delay untuk menghindari rate limit (429)
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function buatWallet() {
-    // Simulasi pembuatan wallet (gunakan library web3 jika ingin real)
-    const walletAddress = `0x${Math.random().toString(16).substr(2, 40)}`;
-    const privateKey = `0x${Math.random().toString(16).substr(2, 64)}`;
-    return { walletAddress, privateKey };
+// Fungsi untuk membuat wallet (dummy)
+function generateWallet() {
+  const walletAddress = "0x" + Math.random().toString(36).substring(2, 42);
+  const privateKey = "0x" + Math.random().toString(36).substring(2, 64);
+  return { walletAddress, privateKey };
 }
 
-async function daftarAkun(wallet, referralCode) {
-    const url = "https://quest-api.arenavs.com/api/v1/users/initialize";
+// Fungsi untuk daftar akun dengan referral
+async function registerWallet(walletAddress, referralCode) {
+  try {
+    const response = await axios.post(
+      "https://quest-api.arenavs.com/api/v1/users/initialize",
+      { walletAddress: walletAddress, referralCode: referralCode },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "User-Agent": "Mozilla/5.0 (Linux; Android 10)",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.log(`❌ Gagal mendaftarkan wallet ${walletAddress}: ${error.response?.status || error.message}`);
+    return null;
+  }
+}
 
+// Fungsi untuk menyelesaikan task (Follow X, Like & RT, Invite, Discord)
+async function completeTasks(walletAddress, authToken) {
+  const tasks = [
+    { id: 1, name: "Follow X" },
+    { id: 2, name: "Like dan Retweet X" },
+    { id: 3, name: "Invite Friend di X" },
+    { id: 4, name: "Claim Role di Discord" },
+  ];
+
+  for (const task of tasks) {
     try {
-        const response = await axios.post(url, {
-            walletAddress: wallet.walletAddress,
-            referralCode: referralCode
-        }, {
-            headers: { "Content-Type": "application/json" }
-        });
-
-        console.log(`✅ Wallet ${wallet.walletAddress} berhasil didaftarkan dengan referral ${referralCode}`);
-        return response.data;
+      await axios.post(
+        `https://quest-api.arenavs.com/api/v1/tasks/${task.id}/complete/1649811`,
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authToken}`,
+            "User-Agent": "Mozilla/5.0 (Linux; Android 10)",
+          },
+        }
+      );
+      console.log(`✅ Berhasil menyelesaikan tugas '${task.name}' untuk wallet ${walletAddress}`);
     } catch (error) {
-        console.log(`❌ Gagal mendaftarkan wallet ${wallet.walletAddress}: ${error.response ? error.response.status : error.message}`);
-        return null;
+      console.log(`❌ Gagal menyelesaikan tugas '${task.name}' untuk wallet ${walletAddress}: ${error.response?.status || error.message}`);
     }
+    await delay(10000); // Delay antar tugas
+  }
 }
 
-async function selesaikanTask(wallet, token) {
-    const tasks = [1, 2, 3, 4]; // ID tugas
-    const userId = "1649811"; // ID user (perlu dikonfirmasi lagi)
-
-    for (let task of tasks) {
-        const url = `https://quest-api.arenavs.com/api/v1/tasks/${task}/complete/${userId}`;
-
-        try {
-            await axios.post(url, {}, {
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json"
-                }
-            });
-
-            console.log(`✅ Berhasil menyelesaikan tugas ${task} untuk wallet ${wallet.walletAddress}`);
-        } catch (error) {
-            console.log(`❌ Gagal menyelesaikan tugas ${task} untuk wallet ${wallet.walletAddress}: ${error.response ? error.response.status : error.message}`);
-        }
+// Main function
+async function main() {
+  rl.question("Berapa akun yang ingin dibuat? ", async (jumlahAkun) => {
+    jumlahAkun = parseInt(jumlahAkun);
+    if (isNaN(jumlahAkun) || jumlahAkun <= 0) {
+      console.log("Jumlah akun tidak valid.");
+      rl.close();
+      return;
     }
-}
 
-async function mulaiProses() {
-    const jumlahAkun = await tanyaPertanyaan("Berapa akun yang ingin dibuat? ");
-    const referralCode = await tanyaPertanyaan("Masukkan kode referral: ");
-    rl.close();
+    rl.question("Masukkan kode referral: ", async (referralCode) => {
+      for (let i = 1; i <= jumlahAkun; i++) {
+        console.log(`🚀 Membuat wallet ke-${i}...`);
 
-    const akunTersimpan = [];
+        // Generate wallet
+        const wallet = generateWallet();
+        console.log(`🔗 Wallet Address: ${wallet.walletAddress}`);
+        console.log(`🔐 Private Key: ${wallet.privateKey}`);
 
-    for (let i = 0; i < parseInt(jumlahAkun); i++) {
-        console.log(`🚀 Membuat wallet ke-${i + 1}...`);
+        // Register wallet
+        const registerResponse = await registerWallet(wallet.walletAddress, referralCode);
+        if (!registerResponse) continue;
 
-        const wallet = await buatWallet();
-        akunTersimpan.push(wallet);
-
-        const userData = await daftarAkun(wallet, referralCode);
-
-        if (userData && userData.token) {
-            await selesaikanTask(wallet, userData.token);
+        // Ambil token dari response jika ada
+        const authToken = registerResponse.authToken || null;
+        if (!authToken) {
+          console.log(`❌ Gagal mendapatkan token untuk wallet ${wallet.walletAddress}`);
+          continue;
         }
 
-        // Delay untuk menghindari error 429 (Too Many Requests)
-        await new Promise(resolve => setTimeout(resolve, 3000));
-    }
+        // Selesaikan quest
+        await completeTasks(wallet.walletAddress, authToken);
 
-    fs.writeFileSync('akun.json', JSON.stringify(akunTersimpan, null, 2));
-    console.log("✅ Semua akun telah selesai dibuat dan tugas diselesaikan.");
+        // Delay sebelum membuat akun berikutnya
+        console.log("⏳ Menunggu sebelum membuat akun berikutnya...");
+        await delay(10000);
+      }
+      console.log("✅ Semua akun telah selesai dibuat dan tugas diselesaikan.");
+      rl.close();
+    });
+  });
 }
 
-mulaiProses();
+// Jalankan script
+main();
