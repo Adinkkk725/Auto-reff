@@ -1,0 +1,13 @@
+{
+  "name": "auto-reff",
+  "version": "1.0.0",
+  "description": "Script untuk auto referral dengan wallet otomatis",
+  "main": "autoReff.js",
+  "scripts": {
+    "start": "node autoReff.js"
+  },
+  "dependencies": {
+    "axios": "^1.5.1",
+    "ethers": "^6.0.0"
+  }
+}
