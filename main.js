@@ -1,60 +1,88 @@
-const axios = require('axios');
-const ethers = require('ethers');
-const fs = require('fs-extra');
-const prompt = require('prompt-sync')();
+const axios = require("axios");
+const ethers = require("ethers");
+const readline = require("readline-sync");
 
-// Fungsi untuk menunggu (delay)
+const API_URL = "https://quest-api.arenavs.com/api/v1"; // URL API utama
+
+// Fungsi untuk delay (menunggu beberapa detik sebelum lanjut)
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-async function createWallet(referralCode) {
+// Fungsi untuk membuat wallet baru
+function buatWalletBaru() {
     const wallet = ethers.Wallet.createRandom();
-    const walletAddress = wallet.address;
-    const privateKey = wallet.privateKey;
-
-    console.log(`🚀 Membuat wallet: ${walletAddress}`);
-
-    try {
-        const response = await axios.post(
-            'https://quest-api.arenavs.com/api/v1/users/initialize',
-            { walletAddress: walletAddress, referralCode: referralCode },
-            { headers: { 'Content-Type': 'application/json' } }
-        );
-
-        console.log(`✅ Wallet ${walletAddress} berhasil didaftarkan dengan referral ${referralCode}`);
-
-        return { walletAddress, privateKey };
-    } catch (error) {
-        console.error(`❌ Gagal mendaftarkan wallet ${walletAddress}: ${error.response?.status}`);
-        return null;
-    }
+    return {
+        address: wallet.address,
+        privateKey: wallet.privateKey
+    };
 }
 
-async function main() {
-    const jumlahAkun = parseInt(prompt("Berapa akun yang ingin dibuat? "));
-    const referralCode = prompt("Masukkan kode referral: ");
+// Fungsi untuk mendaftarkan wallet dengan kode referral
+async function daftarWallet(walletAddress, referralCode) {
+    try {
+        const response = await axios.post(`${API_URL}/register`, {
+            walletAddress,
+            referralCode
+        });
 
-    if (isNaN(jumlahAkun) || jumlahAkun <= 0) {
-        console.log("Jumlah akun tidak valid!");
-        return;
+        if (response.status === 200) {
+            console.log(`✅ Wallet ${walletAddress} berhasil didaftarkan dengan referral ${referralCode}`);
+            return true;
+        }
+    } catch (error) {
+        console.log(`❌ Gagal mendaftarkan wallet ${walletAddress}: ${error.response ? error.response.status : error.message}`);
     }
+    return false;
+}
 
-    let wallets = [];
-    
+// Fungsi untuk menyelesaikan task tertentu
+async function selesaikanTask(walletAddress, taskId, taskName) {
+    try {
+        const response = await axios.post(`${API_URL}/tasks/${taskId}/complete`, {}, {
+            headers: {
+                "Authorization": `Bearer ${walletAddress}`, // Pastikan token atau header benar
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (response.status === 200) {
+            console.log(`✅ Task '${taskName}' berhasil diselesaikan untuk wallet ${walletAddress}`);
+            return true;
+        }
+    } catch (error) {
+        console.log(`❌ Gagal menyelesaikan task '${taskName}' untuk wallet ${walletAddress}: ${error.response ? error.response.status : error.message}`);
+    }
+    return false;
+}
+
+// Fungsi utama untuk menjalankan proses
+async function mulai() {
+    const jumlahAkun = readline.questionInt("Berapa akun yang ingin dibuat? ");
+    const referralCode = readline.question("Masukkan kode referral: ");
+
     for (let i = 0; i < jumlahAkun; i++) {
-        const wallet = await createWallet(referralCode);
-        
-        if (wallet) {
-            wallets.push(wallet);
-            fs.appendFileSync('wallets.txt', `${wallet.walletAddress} | ${wallet.privateKey}\n`);
+        console.log(`\n🚀 Membuat wallet ke-${i + 1}...`);
+
+        const wallet = buatWalletBaru();
+        console.log(`🔗 Wallet Address: ${wallet.address}`);
+
+        const sukses = await daftarWallet(wallet.address, referralCode);
+
+        if (sukses) {
+            console.log("🔄 Menyelesaikan task...");
+            await selesaikanTask(wallet.address, 1, "Follow X");
+            await selesaikanTask(wallet.address, 2, "Like & Retweet X");
+            await selesaikanTask(wallet.address, 3, "Invite Friend di X");
+            await selesaikanTask(wallet.address, 4, "Claim Role di Discord");
+            console.log("✅ Semua task telah diselesaikan untuk wallet ini.");
         }
 
-        // Tambahkan delay 5-10 detik sebelum membuat wallet berikutnya
-        const randomDelay = Math.floor(Math.random() * (10000 - 5000 + 1)) + 5000;
-        console.log(`⏳ Menunggu ${randomDelay / 1000} detik sebelum membuat wallet berikutnya...\n`);
-        await delay(randomDelay);
+        // Delay acak antara 30-60 detik sebelum membuat akun berikutnya
+        const delayTime = 30000 + Math.random() * 30000;
+        console.log(`⏳ Menunggu ${Math.round(delayTime / 1000)} detik sebelum membuat wallet berikutnya...`);
+        await delay(delayTime);
     }
 
-    console.log("✅ Semua akun telah selesai dibuat!");
+    console.log("\n✅ Semua akun telah dibuat dan tugas selesai!");
 }
 
-main();
+mulai();
