@@ -65,7 +65,7 @@ async function completeTasks(walletAddress, authToken) {
     } catch (error) {
       console.log(`❌ Gagal menyelesaikan tugas '${task.name}' untuk wallet ${walletAddress}: ${error.response?.status || error.message}`);
     }
-    await delay(10000); // Delay antar tugas
+    await delay(30000); // Delay antar tugas
   }
 }
 
@@ -104,7 +104,7 @@ async function main() {
 
         // Delay sebelum membuat akun berikutnya
         console.log("⏳ Menunggu sebelum membuat akun berikutnya...");
-        await delay(10000);
+        await delay(30000);
       }
       console.log("✅ Semua akun telah selesai dibuat dan tugas diselesaikan.");
       rl.close();
