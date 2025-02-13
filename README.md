@@ -26,3 +26,13 @@ Clone repository ini ke perangkatmu:
 ```sh
 git clone https://github.com/Adink725/Auto-reff.git
 cd Auto-reff
+
+
+Instal semua dependensi yang dibutuhkan:
+
+npm install
+
+
+⚙️ Cara Menjalankan
+
+node autoReff.js
