@@ -1,38 +1,23 @@
 # 🚀 Auto Referral ArenaVS
-Bot ini secara otomatis:
-✅ Membuat wallet baru  
-✅ Menggunakan kode referral  
-✅ Menyimpan wallet ke `wallets.txt`  
+
+
+## Fitur
+✅ Membuat wallet secara otomatis  
 ✅ Mendaftarkan wallet ke sistem referral  
+✅ Menyelesaikan tugas-tugas pendaftaran  
 
----
+## Persiapan
+1. Clone repository ini:
 
-## **📌 Fitur**
-✅ Pembuatan wallet otomatis  
-✅ Auto referral tanpa perlu klik manual  
-✅ Menyimpan akun yang berhasil dibuat  
-✅ Dapat digunakan tanpa login Twitter/Discord  
-
----
-
-## **📂 Struktur Direktori**  
+git clone https://github.com/Adinkkk725/Auto-reff.git cd Auto-reff
 
 
-
----
-
-## **📥 Instalasi**  
-Clone repository ini ke perangkatmu:  
-```sh
-git clone https://github.com/Adink725/Auto-reff.git
-cd Auto-reff
-
-
-Instal semua dependensi yang dibutuhkan:
+2. Install dependensi:
 
 npm install
 
 
-⚙️ Cara Menjalankan
+3. Jalankan script:
 
-node autoReff.js
+node main.js
+
