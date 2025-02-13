@@ -65,7 +65,7 @@ async function completeTasks(walletAddress, authToken) {
     } catch (error) {
       console.log(`❌ Gagal menyelesaikan tugas '${task.name}' untuk wallet ${walletAddress}: ${error.response?.status || error.message}`);
     }
-    await delay(5000); // Delay antar tugas
+    await delay(30000); // Delay antar tugas
   }
 }
 
