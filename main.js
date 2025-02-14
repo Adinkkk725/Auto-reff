@@ -30,6 +30,9 @@ async function daftarWallet(walletAddress, referralCode) {
         }
     } catch (error) {
         console.log(`❌ Gagal mendaftarkan wallet ${walletAddress}: ${error.response ? error.response.status : error.message}`);
+        if (error.response && error.response.data) {
+            console.log(`ℹ️ Response data: ${JSON.stringify(error.response.data)}`);
+        }
     }
     return false;
 }
@@ -50,6 +53,9 @@ async function selesaikanTask(walletAddress, taskId, taskName) {
         }
     } catch (error) {
         console.log(`❌ Gagal menyelesaikan task '${taskName}' untuk wallet ${walletAddress}: ${error.response ? error.response.status : error.message}`);
+        if (error.response && error.response.data) {
+            console.log(`ℹ️ Response data: ${JSON.stringify(error.response.data)}`);
+        }
     }
     return false;
 }
