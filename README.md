@@ -1,23 +1,20 @@
 # 🚀 Auto Referral ArenaVS
 
+# Wallet Task Automation
+
+Script ini otomatisasi proses pembuatan wallet Ethereum baru, mendaftarkannya menggunakan kode referral, dan menyelesaikan tugas tertentu. Script ini menggunakan `axios` untuk permintaan HTTP dan `ethers` untuk manajemen wallet. Input pengguna ditangani melalui `readline-sync`.
 
 ## Fitur
-✅ Membuat wallet secara otomatis  
-✅ Mendaftarkan wallet ke sistem referral  
-✅ Menyelesaikan tugas-tugas pendaftaran  
 
-## Persiapan
-1. Clone repository ini:
+1. **Buat Wallet Baru**: Menghasilkan wallet Ethereum baru dengan alamat dan private key unik.
+2. **Daftar Wallet**: Mendaftarkan wallet yang baru dibuat menggunakan kode referral yang diberikan.
+3. **Selesaikan Tugas**: Otomatis menyelesaikan serangkaian tugas yang telah ditentukan untuk setiap wallet yang terdaftar.
+4. **Delay Acak**: Menyisipkan delay acak antara pembuatan wallet untuk meniru perilaku manusia.
 
-git clone https://github.com/Adinkkk725/Auto-reff.git cd Auto-reff
+## Instalasi
 
-
-2. Install dependensi:
-
-npm install
-
-
-3. Jalankan script:
-
-node main.js
-
+1. Pastikan Anda memiliki Node.js terinstal di komputer Anda.
+2. Clone repositori ini:
+   ```bash
+   git clone https://github.com/username/wallet-task-automation.git
+   cd wallet-task-automation
