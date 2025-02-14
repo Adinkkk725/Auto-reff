@@ -18,8 +18,11 @@ function buatWalletBaru() {
 
 // Fungsi untuk mendaftarkan wallet dengan kode referral
 async function daftarWallet(walletAddress, referralCode) {
+    const url = `${API_URL}/register`; // Endpoint URL
+    console.log(`🔍 Mengirim POST request ke ${url} dengan walletAddress: ${walletAddress} dan referralCode: ${referralCode}`);
+    
     try {
-        const response = await axios.post(`${API_URL}/register`, {
+        const response = await axios.post(url, {
             walletAddress,
             referralCode
         });
