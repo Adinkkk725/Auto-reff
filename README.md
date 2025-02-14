@@ -16,5 +16,5 @@ Script ini otomatisasi proses pembuatan wallet Ethereum baru, mendaftarkannya me
 1. Pastikan Anda memiliki Node.js terinstal di komputer Anda.
 2. Clone repositori ini:
    ```bash
-   git clone https://github.com/username/wallet-task-automation.git
-   cd wallet-task-automation
+   git clone https://github.com/Adinkkk725/Auto-reff.git
+   cd Auto-reff
